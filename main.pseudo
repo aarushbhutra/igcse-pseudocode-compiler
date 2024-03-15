@@ -1,0 +1,6 @@
+OUTPUT "Your Name?"
+DECLARE name:STRING
+name <- "Aarush Bhutra"
+//OUTPUT "Your Mom"
+
+OUTPUT "Welcome " + name + "to my compiler"

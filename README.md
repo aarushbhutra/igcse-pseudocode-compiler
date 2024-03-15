@@ -13,15 +13,15 @@ This document provides detailed information about the `interpreter.py` script, w
 ## Supported Syntax
 
 1. **Declaring Variables:**
-   - To declare a variable with a type, use the syntax: `DECLARE <variable_name> AS <DATA_TYPE>`.
+   - To declare a variable with a type, use the syntax: `DECLARE <variable_name>:<DATA_TYPE>`.
    - Supported data types: `INTEGER`, `REAL`, `CHAR`, `STRING`, `BOOLEAN`.
 
 2. **Assigning Values:**
-   - To assign a value to a variable, use the syntax: `<variable_name> = <value>`.
+   - To assign a value to a variable, use the syntax: `<variable_name> <- <value>`.
    - The script performs type checking to ensure the value matches the variable's declared type.
 
 3. **Generating Output:**
-   - To output the value of a variable or a string, use the syntax: `OUTPUT "<text> <variable_name> <text>"`.
+   - To output the value of a variable or a string, use the syntax: `OUTPUT "<text> " + <variable_name> +" <text>"`.
    - This syntax supports combining text and variable values in a single output command.
 
 ## How to Run

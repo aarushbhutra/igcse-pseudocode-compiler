@@ -3,6 +3,11 @@ from colorama import Fore, init
 
 init(autoreset=True)
 
+"""
+TODO:
+1D Array Assignment and Access
+"""
+
 variables ={}
 valid_data_types = ["INTEGER", "REAL", "CHAR", "STRING", "BOOLEAN"]
 
@@ -70,38 +75,76 @@ def assemble_output(output_parts):
                 return None
     return final_output
 
+def process_constant_command(parts):
+    name_value = parts.split("=")
+    if len(name_value) != 2:
+        print(Fore.RED + 'Error: CONSTANT command format is incorrect. Use CONSTANT <variable name> = <value>.' + Fore.RESET)
+        return
+    const_name, const_value = name_value[0].strip(), name_value[1].strip().strip('"')
+    if const_name in variables and variables[const_name].get("is_constant", False):
+        print(Fore.RED + f'Error: {const_name} is already defined as a constant and cannot be redeclared.' + Fore.RESET)
+        return
+    variables[const_name] = {"value": const_value, "is_constant": True}
+
 def process_declare_command(parts):
-    var_declaration = parts.split(":")
-    if len(var_declaration) != 2:
-        print(Fore.RED + 'Error: Variable declaration format is <variable name>:<data type>.' + Fore.RESET)
-        return
-    var_name, var_type = var_declaration
-    if ' ' in var_name:
-        print(Fore.RED + 'Error: Variable name cannot contain spaces.' + Fore.RESET)
-        return
-    if not var_name or var_name.startswith(":"):
-        print(Fore.RED + 'Error: A variable name must be provided before the data type.' + Fore.RESET)
-        return
-    if var_type not in valid_data_types:
-        print(Fore.RED + f'Error: {var_type} is not a valid data type. Valid data types are: {", ".join(valid_data_types)}.' + Fore.RESET)
-        return
-    variables[var_name] = {"type": var_type, "value": "null"}
+    if 'ARRAY' in parts:
+        # Process ARRAY declaration
+        var_name, rest = parts.split(':', 1)
+        array_info, var_type = rest.split('OF', 1)
+        var_name = var_name.strip()
+        var_type = var_type.strip()
+        if ' ' in var_name:
+            print(Fore.RED + 'Error: Variable name cannot contain spaces.' + Fore.RESET)
+            return
+        if '[' not in array_info or ']' not in array_info:
+            print(Fore.RED + 'Error: Invalid array declaration.' + Fore.RESET)
+            return
+        bounds = array_info[array_info.find('[')+1:array_info.find(']')].split(':')
+        if len(bounds) != 2:
+            print(Fore.RED + 'Error: Array bounds must be specified as [lower:upper].' + Fore.RESET)
+            return
+        lower_bound, upper_bound = bounds
+        try:
+            lower_bound = int(lower_bound)
+            upper_bound = int(upper_bound)
+        except ValueError:
+            print(Fore.RED + 'Error: Array bounds must be integers.' + Fore.RESET)
+            return
+        if lower_bound > upper_bound:
+            print(Fore.RED + 'Error: Lower bound cannot be greater than upper bound.' + Fore.RESET)
+            return
+        if var_type not in valid_data_types:
+            print(Fore.RED + f'Error: {var_type} is not a valid data type for an array.' + Fore.RESET)
+            return
+        # Store the array with its bounds and type
+        variables[var_name] = {"type": f"ARRAY OF {var_type}", "bounds": (lower_bound, upper_bound), "value": ["null"] * (upper_bound - lower_bound + 1)}
+    else:
+        # Process non-ARRAY declaration
+        var_declaration = parts.split(":")
+        var_name, var_type = var_declaration[0].strip(), var_declaration[1].strip()
+        if ' ' in var_name:
+            print(Fore.RED + 'Error: Variable name cannot contain spaces.' + Fore.RESET)
+            return
+        if var_type not in valid_data_types:
+            print(Fore.RED + f'Error: {var_type} is not a valid data type. Valid data types are: {", ".join(valid_data_types)}.' + Fore.RESET)
+            return
+        variables[var_name] = {"type": var_type, "value": "null"}
+
 
 
 def process_assignment_command(parts):
     var_name, value = parts.split("<-")
-    var_name = var_name.strip()
-    value = value.strip().strip('"')
-    if var_name not in variables:
+    var_name, value = var_name.strip(), value.strip().strip('"')
+    if var_name in variables:
+        if variables[var_name].get("is_constant", False):
+            print(Fore.RED + f'Error: {var_name} is a constant and its value cannot be changed.' + Fore.RESET)
+            return
+    else:
         print(Fore.RED + f'Error: Variable {var_name} is not declared.' + Fore.RESET)
-        return
-    if not is_valid_value_for_type(value, variables[var_name]["type"]):
-        print(Fore.RED + f'Error: Type mismatch or invalid value for variable {var_name}.' + Fore.RESET)
         return
     variables[var_name]["value"] = value
 
 def process_line(line):
-
     line, _, _ = line.partition('//')
     line = line.strip()
     if not line:  # If the line is empty after removing the comment, skip it
@@ -111,6 +154,8 @@ def process_line(line):
         process_output_command(line[len("OUTPUT"):].strip())
     elif line.startswith("DECLARE"):
         process_declare_command(line[len("DECLARE"):].strip())
+    elif line.startswith("CONSTANT"):
+        process_constant_command(line[len("CONSTANT"):].strip())    
     elif "<-" in line:
         process_assignment_command(line)
 

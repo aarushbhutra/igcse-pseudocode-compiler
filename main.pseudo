@@ -3,4 +3,10 @@ DECLARE name:STRING
 name <- "Aarush Bhutra"
 //OUTPUT "Your Mom"
 
+DECLARE names:ARRAY[1:10] OF STRING
+
+CONSTANT pi = 3.14
+
+OUTPUT "Value of pi is " + pi
+
 OUTPUT "Welcome " + name + "to my compiler"

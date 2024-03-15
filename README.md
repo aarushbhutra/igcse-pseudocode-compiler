@@ -1,7 +1,7 @@
 
 # Interpreter Script for Custom Pseudocode Documentation
 
-This document provides detailed information about the `interpreter.py` script, which is designed to interpret and execute custom pseudocode specified in `.pseudo` files. Below, you'll find instructions on how to run the script, along with descriptions of its syntax for declaring variables, assigning values, and generating output.
+This document provides detailed information about the `interpreter.py` script, which is designed to interpret and execute custom pseudocode specified in `.pseudo` files. Below, you'll find instructions on how to run the script, along with descriptions of its syntax for declaring variables, assigning values, and generating output based on www.cambridgeinternational.org/Images/697401-2026-syllabus-legacy-notice.pdf
 
 ## Features
 

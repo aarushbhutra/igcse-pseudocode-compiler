@@ -15,7 +15,7 @@ This document provides detailed information about the `interpreter.py` script, d
 
 1. **Declaring Variables and Constants:**
    - For variables: `DECLARE <variable_name>:<DATA_TYPE>`.
-   - For constants: `CONSTANT <constant_name> <- <value>`.
+   - For constants: `CONSTANT <constant_name> = <value>`.
    - Supported data types: `INTEGER`, `REAL`, `CHAR`, `STRING`, `BOOLEAN`.
 
 2. **Declaring Arrays:**
@@ -23,7 +23,7 @@ This document provides detailed information about the `interpreter.py` script, d
    - This allows for the declaration of arrays with specified bounds and a data type for the elements.
 
 3. **Assigning Values:**
-   - To assign a value to a variable or an array element, use: `<variable_name> <- <value>` or `<array_name>[<index>] <- <value>`.
+   - To assign a value to a variable or an array element, use: `<variable_name> <- <value>`.
    - The script ensures that the assigned values match the declared types.
 
 4. **Generating Output:**

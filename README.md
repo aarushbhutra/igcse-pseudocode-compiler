@@ -19,15 +19,15 @@ This document provides detailed information about the `interpreter.py` script, d
    - Supported data types: `INTEGER`, `REAL`, `CHAR`, `STRING`, `BOOLEAN`.
 
 2. **Declaring Arrays:**
-   - Syntax: `DECLARE <identifier>:ARRAY[<lower_bound>:<upper_bound>] OF <data_type>`.
+   - Syntax: `DECLARE <identifier>:ARRAY[<lower_bound>:<upper_bound>] OF <data_type>` and to assign array values `<array_name>[position] <- <value>`.
    - This allows for the declaration of arrays with specified bounds and a data type for the elements.
 
 3. **Assigning Values:**
-   - To assign a value to a variable or an array element, use: `<variable_name> <- <value>`.
+   - To assign a value to a variable or an array element, use: `<variable_name> <- <value>` which supports arrays.
    - The script ensures that the assigned values match the declared types.
 
 4. **Generating Output:**
-   - Syntax: `OUTPUT "<text> " + <variable_name> + " <text>"`.
+   - Syntax: `OUTPUT "<text> " + <variable_name> + " <text>"` for arrays you can use `<array_name>[position]`.
    - Supports combining text with the values of variables, constants, or array elements in a single output command.
 
 ## How to Run

@@ -1,32 +1,7 @@
 import sys
 from colorama import Fore, init
-
-init(autoreset=True)
-
-"""
-TODO:
-2D Array Creation, Assignment, and Access
-"""
-
-variables ={}
-valid_data_types = ["INTEGER", "REAL", "CHAR", "STRING", "BOOLEAN"]
-
-def is_valid_value_for_type(value, var_type):
-    if var_type == "INTEGER":
-        return value.isdigit() or (value.startswith('-') and value[1:].isdigit())
-    elif var_type == "REAL":
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
-    elif var_type == "CHAR":
-        return len(value) == 1
-    elif var_type == "STRING":
-        return isinstance(value, str)
-    elif var_type == "BOOLEAN":
-        return value in ["TRUE", "FALSE"]
-    return False
+from state_manager import variables, valid_data_types, evaluate_expression, is_valid_value_for_type
+from colorama import Fore
 
 def process_output_command(expression):
     # Evaluate the entire expression, including handling concatenations
@@ -84,52 +59,6 @@ def process_constant_command(parts):
         print(Fore.RED + f'Error: {const_name} is already defined as a constant and cannot be redeclared.' + Fore.RESET)
         return
     variables[const_name] = {"value": const_value, "is_constant": True}
-
-def evaluate_expression(expression):
-    # Split the expression by '+' while considering potential spaces around it
-    parts = expression.split('+')
-    evaluated_parts = []
-    
-    for part in parts:
-        part = part.strip()  # Remove leading and trailing spaces
-        if part.startswith('"') and part.endswith('"'):
-            # Directly append string literals without quotes
-            evaluated_parts.append(part[1:-1])
-        elif '[' in part and ']' in part:
-            # Handle array access
-            var_name, index = part.split('[')
-            index = index.rstrip(']')
-            var_name = var_name.strip()
-
-            if var_name in variables and "bounds" in variables[var_name]:
-                try:
-                    index = int(index) - variables[var_name]["bounds"][0]  # Adjust for base index
-                    value = variables[var_name]["value"][index]
-                    if value is None:
-                        print(Fore.RED + f'Error: Element at index {index + variables[var_name]["bounds"][0]} in array "{var_name}" is uninitialized.' + Fore.RESET)
-                        return None
-                    evaluated_parts.append(value)
-                except (ValueError, IndexError):
-                    print(Fore.RED + 'Error: Invalid array index.' + Fore.RESET)
-                    return None
-            else:
-                print(Fore.RED + f'Error: {var_name} is not a declared array.' + Fore.RESET)
-                return None
-        elif part in variables:
-            # Append variable value
-            value = variables[part]["value"]
-            if value is None:
-                print(Fore.RED + f'Error: Variable "{part}" is uninitialized.' + Fore.RESET)
-                return None
-            evaluated_parts.append(value)
-        else:
-            # Handle other cases or undefined variables
-            print(Fore.RED + f'Error: {part} is not defined.' + Fore.RESET)
-            return None
-
-    # Join evaluated parts with no space, as spaces were considered during splitting
-    return ''.join(str(part) for part in evaluated_parts)
-
 
 
 def process_declare_command(parts):

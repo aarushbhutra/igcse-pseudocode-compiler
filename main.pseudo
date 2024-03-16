@@ -1,9 +1,16 @@
 DECLARE names:ARRAY[1:10] OF STRING
 DECLARE mainName:STRING
+DECLARE secret:INTEGER
+DECLARE really:INTEGER
 
 names[5] <- "Sushant"
 names[7] <- "Aarush"
 mainName <- names[7]
+
+really <- 100
+secret <- really
+
+OUTPUT really
 
 OUTPUT "Name 5 is " + names[3]
 OUTPUT mainName

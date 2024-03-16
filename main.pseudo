@@ -1,12 +1,9 @@
-OUTPUT "Your Name?"
-DECLARE name:STRING
-name <- "Aarush Bhutra"
-//OUTPUT "Your Mom"
-
 DECLARE names:ARRAY[1:10] OF STRING
+DECLARE mainName:STRING
 
-CONSTANT pi = 3.14
+names[5] <- "Sushant"
+names[7] <- "Aarush"
+mainName <- names[7]
 
-OUTPUT "Value of pi is " + pi
-
-OUTPUT "Welcome " + name + "to my compiler"
+OUTPUT "Name 5 is " + names[3]
+OUTPUT mainName

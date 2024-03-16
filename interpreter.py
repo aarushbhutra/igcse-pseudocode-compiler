@@ -5,14 +5,13 @@ init(autoreset=True)
 
 """
 TODO:
-1D Array Assignment and Access
+2D Array Creation, Assignment, and Access
 """
 
 variables ={}
 valid_data_types = ["INTEGER", "REAL", "CHAR", "STRING", "BOOLEAN"]
 
 def is_valid_value_for_type(value, var_type):
-    # Basic type validation logic
     if var_type == "INTEGER":
         return value.isdigit() or (value.startswith('-') and value[1:].isdigit())
     elif var_type == "REAL":
@@ -29,11 +28,11 @@ def is_valid_value_for_type(value, var_type):
         return value in ["TRUE", "FALSE"]
     return False
 
-def process_output_command(parts):
-    output_parts = parse_output_parts(parts)
-    final_output = assemble_output(output_parts)
-    if final_output is not None:
-        print(final_output)
+def process_output_command(expression):
+    # Evaluate the entire expression, including handling concatenations
+    output = evaluate_expression(expression)
+    if output is not None:
+        print(output)
 
 def parse_output_parts(parts):
     output_parts = []
@@ -86,6 +85,53 @@ def process_constant_command(parts):
         return
     variables[const_name] = {"value": const_value, "is_constant": True}
 
+def evaluate_expression(expression):
+    # Split the expression by '+' while considering potential spaces around it
+    parts = expression.split('+')
+    evaluated_parts = []
+    
+    for part in parts:
+        part = part.strip()  # Remove leading and trailing spaces
+        if part.startswith('"') and part.endswith('"'):
+            # Directly append string literals without quotes
+            evaluated_parts.append(part[1:-1])
+        elif '[' in part and ']' in part:
+            # Handle array access
+            var_name, index = part.split('[')
+            index = index.rstrip(']')
+            var_name = var_name.strip()
+
+            if var_name in variables and "bounds" in variables[var_name]:
+                try:
+                    index = int(index) - variables[var_name]["bounds"][0]  # Adjust for base index
+                    value = variables[var_name]["value"][index]
+                    if value is None:
+                        print(Fore.RED + f'Error: Element at index {index + variables[var_name]["bounds"][0]} in array "{var_name}" is uninitialized.' + Fore.RESET)
+                        return None
+                    evaluated_parts.append(value)
+                except (ValueError, IndexError):
+                    print(Fore.RED + 'Error: Invalid array index.' + Fore.RESET)
+                    return None
+            else:
+                print(Fore.RED + f'Error: {var_name} is not a declared array.' + Fore.RESET)
+                return None
+        elif part in variables:
+            # Append variable value
+            value = variables[part]["value"]
+            if value is None:
+                print(Fore.RED + f'Error: Variable "{part}" is uninitialized.' + Fore.RESET)
+                return None
+            evaluated_parts.append(value)
+        else:
+            # Handle other cases or undefined variables
+            print(Fore.RED + f'Error: {part} is not defined.' + Fore.RESET)
+            return None
+
+    # Join evaluated parts with no space, as spaces were considered during splitting
+    return ''.join(str(part) for part in evaluated_parts)
+
+
+
 def process_declare_command(parts):
     if 'ARRAY' in parts:
         # Process ARRAY declaration
@@ -117,7 +163,11 @@ def process_declare_command(parts):
             print(Fore.RED + f'Error: {var_type} is not a valid data type for an array.' + Fore.RESET)
             return
         # Store the array with its bounds and type
-        variables[var_name] = {"type": f"ARRAY OF {var_type}", "bounds": (lower_bound, upper_bound), "value": ["null"] * (upper_bound - lower_bound + 1)}
+        variables[var_name] = {
+            "type": f"ARRAY OF {var_type}",
+            "bounds": (lower_bound, upper_bound),
+            "value": [None] * (upper_bound - lower_bound + 1)  # Use None instead of "null"
+        }
     else:
         # Process non-ARRAY declaration
         var_declaration = parts.split(":")
@@ -133,21 +183,38 @@ def process_declare_command(parts):
 
 
 def process_assignment_command(parts):
-    var_name, value = parts.split("<-")
-    var_name, value = var_name.strip(), value.strip().strip('"')
-    if var_name in variables:
-        if variables[var_name].get("is_constant", False):
-            print(Fore.RED + f'Error: {var_name} is a constant and its value cannot be changed.' + Fore.RESET)
-            return
+    left_side, right_side = parts.split("<-")
+    left_side, right_side = left_side.strip(), right_side.strip()
+
+    evaluated_right_value = evaluate_expression(right_side)
+
+    if '[' in left_side and ']' in left_side:
+        array_name, index = left_side.split('[')
+        index = index.rstrip(']')
+        array_name = array_name.strip()
+
+        if array_name in variables and "bounds" in variables[array_name]:
+            try:
+                index = int(index) - variables[array_name]["bounds"][0]  # Adjust for base index
+                if index < 0 or index >= len(variables[array_name]["value"]):
+                    print(Fore.RED + 'Error: Invalid array index.' + Fore.RESET)
+                    return
+                variables[array_name]["value"][index] = evaluated_right_value
+            except ValueError:
+                print(Fore.RED + 'Error: Invalid array index.' + Fore.RESET)
+        else:
+            print(Fore.RED + f'Error: {array_name} is not a declared array.' + Fore.RESET)
     else:
-        print(Fore.RED + f'Error: Variable {var_name} is not declared.' + Fore.RESET)
-        return
-    variables[var_name]["value"] = value
+        if left_side in variables:
+            variables[left_side]["value"] = evaluated_right_value
+        else:
+            print(Fore.RED + f'Error: {left_side} is not declared.' + Fore.RESET)
+
 
 def process_line(line):
     line, _, _ = line.partition('//')
     line = line.strip()
-    if not line:  # If the line is empty after removing the comment, skip it
+    if not line:
         return
 
     if line.startswith("OUTPUT"):
@@ -181,4 +248,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("\n")
     print(variables)

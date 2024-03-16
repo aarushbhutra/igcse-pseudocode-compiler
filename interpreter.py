@@ -1,6 +1,6 @@
 import sys
-from colorama import Fore, init
-from state_manager import variables, valid_data_types, evaluate_expression, is_valid_value_for_type
+from colorama import Fore
+from state_manager import variables, valid_data_types, evaluate_expression, determine_type
 from colorama import Fore
 
 def process_output_command(expression):
@@ -31,6 +31,69 @@ def parse_output_parts(parts):
     if current_part.strip():
         output_parts.append(current_part.strip())
     return output_parts
+
+def process_input_command(command):
+    command = command[len("INPUT "):].strip()  # Remove 'INPUT ' from the command
+
+    if '[' in command and ']' in command:
+        # Splitting the command to extract array name and index
+        array_name, index_str = command[:-1].split('[')  # Remove ']' and split at '['
+        array_name = array_name.strip()
+        index_str = index_str.strip()
+
+        # Check if the array is declared
+        if array_name not in variables or "bounds" not in variables[array_name]:
+            print(Fore.RED + f'Error: {array_name} is not a declared array.')
+            return
+
+        # Evaluate the index, considering it might be provided by a variable
+        try:
+            if index_str.isdigit():
+                index = int(index_str)
+            elif index_str in variables and isinstance(variables[index_str]["value"], int):
+                index = variables[index_str]["value"]
+            else:
+                print(Fore.RED + 'Error: Invalid index.')
+                return
+        except ValueError:
+            print(Fore.RED + 'Error: Invalid index.')
+            return
+
+        # Check if the index is within the array bounds
+        lower_bound, upper_bound = variables[array_name]["bounds"]
+        if not (lower_bound <= index <= upper_bound):
+            print(Fore.RED + f'Error: Array index out of bounds.')
+            return
+
+        # Input handling
+        input_value = input()  # Get the input without a specific message
+        determined_type = determine_type(input_value)
+
+        # Assigning input to the array element based on its type
+        if determined_type == "INTEGER":
+            variables[array_name]["value"][index - lower_bound] = int(input_value)
+        elif determined_type == "STRING":
+            variables[array_name]["value"][index - lower_bound] = input_value
+        else:
+            print(Fore.RED + 'Error: Type mismatch.')
+    else:
+        # Handling input for simple variables
+        input_value = input()  # Get the input without a specific message
+        if command in variables:
+            var_type = variables[command]["type"]
+            if var_type == "STRING":
+                variables[command]["value"] = input_value
+            elif var_type == "INTEGER" and input_value.isdigit():
+                variables[command]["value"] = int(input_value)
+            else:
+                print(Fore.RED + 'Error: Type mismatch.')
+        else:
+            # New variable, determining type based on input
+            determined_type = determine_type(input_value)
+            if determined_type == "INTEGER":
+                variables[command] = {"type": "INTEGER", "value": int(input_value)}
+            else:
+                variables[command] = {"type": "STRING", "value": input_value}
 
 def assemble_output(output_parts):
     final_output = ''
@@ -145,8 +208,9 @@ def process_line(line):
     line = line.strip()
     if not line:
         return
-
-    if line.startswith("OUTPUT"):
+    if line.startswith("INPUT"):
+        process_input_command(line)
+    elif line.startswith("OUTPUT"):
         process_output_command(line[len("OUTPUT"):].strip())
     elif line.startswith("DECLARE"):
         process_declare_command(line[len("DECLARE"):].strip())
@@ -154,28 +218,3 @@ def process_line(line):
         process_constant_command(line[len("CONSTANT"):].strip())    
     elif "<-" in line:
         process_assignment_command(line)
-
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: interpreter.py <filename.pseudo>")
-        return
-    
-
-    filename = sys.argv[1]
-
-    if not filename.endswith(".pseudo"):
-        print("Error: File must end with .pseudo")
-        return
-    
-    try:
-        # Open and read the file
-        with open(filename, 'r') as file:
-            for line in file:
-                process_line(line.strip())
-    except FileNotFoundError:
-        print(f"Error: The file {filename} was not found.")
-
-if __name__ == "__main__":
-    main()
-    print("\n")
-    print(variables)

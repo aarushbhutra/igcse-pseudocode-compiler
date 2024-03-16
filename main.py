@@ -1,8 +1,14 @@
 import sys
 from interpreter import process_line
 from colorama import init
+from state_manager import variables
 
 init(autoreset=True)
+
+"""
+TODO:
++ 2D arrays (setup, access, assignment)
+"""
 
 def main():
     if len(sys.argv) != 2:
@@ -23,3 +29,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print(variables)

@@ -7,10 +7,13 @@ names[5] <- "Sushant"
 names[7] <- "Aarush"
 mainName <- names[7]
 
+INPUT names[100]
+OUTPUT names[2]
+
 really <- 100
 secret <- really
 
 OUTPUT really
 
-OUTPUT "Name 5 is " + names[3]
+OUTPUT "Name 5 is " + names[5]
 OUTPUT mainName

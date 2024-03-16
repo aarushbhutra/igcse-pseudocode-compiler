@@ -3,6 +3,14 @@ from colorama import Fore
 variables = {}
 valid_data_types = ["INTEGER", "REAL", "CHAR", "STRING", "BOOLEAN"]
 
+def determine_type(value):
+    try:
+        int(value)
+        return "INTEGER"
+    except ValueError:
+        return "STRING"
+
+
 def is_valid_value_for_type(value, var_type):
     if var_type == "INTEGER":
         return value.isdigit() or (value.startswith('-') and value[1:].isdigit())

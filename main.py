@@ -8,6 +8,8 @@ init(autoreset=True)
 """
 TODO:
 + 2D arrays (setup, access, assignment)
++ Arithmetic operations
++ Relational operations
 """
 
 def main():

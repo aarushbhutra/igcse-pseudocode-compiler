@@ -11,6 +11,7 @@ This document provides detailed information about the `main.py` script, designed
 - **Value Assignment:** Enables assigning values to variables and array elements with type checking.
 - **Output Generation:** Outputs the values of variables, constants, array elements, or strings to the console.
 - **Input Assignment** Allows for asking users to input values which will be stored as new or old variables which are reassigned.
+- **Arithemetic Opperations** Using Arithemetic is now possible however cant be used in output. Supports +,-,*,/.MOD and DIV
 
 ## Supported Syntax
 

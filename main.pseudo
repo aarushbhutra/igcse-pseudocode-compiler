@@ -1,19 +1,10 @@
-DECLARE names:ARRAY[1:10] OF STRING
-DECLARE mainName:STRING
-DECLARE secret:INTEGER
-DECLARE really:INTEGER
+DECLARE numbers:ARRAY[1:10] OF INTEGER
+DECLARE number1:INTEGER
+DECLARE number2:INTEGER
+DECLARE total:INTEGER
 
-names[5] <- "Sushant"
-names[7] <- "Aarush"
-mainName <- names[7]
+number1 <- 10
+number2 <- 20
+total <- number1 + number2
 
-INPUT names[100]
-OUTPUT names[2]
-
-really <- 100
-secret <- really
-
-OUTPUT really
-
-OUTPUT "Name 5 is " + names[5]
-OUTPUT mainName
+OUTPUT "Hello the number is " + total

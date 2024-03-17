@@ -1,4 +1,3 @@
-import sys
 from colorama import Fore
 from state_manager import variables, valid_data_types, evaluate_expression, determine_type
 from colorama import Fore
